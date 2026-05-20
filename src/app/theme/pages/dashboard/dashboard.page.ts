@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { St5MetricCardBlock } from '../../blocks/metric-card/metric-card.block';
 import type { DashboardViewModel } from './dashboard.vm';
@@ -9,13 +9,13 @@ import type { DashboardViewModel } from './dashboard.vm';
   template: `
     <section class="grid gap-4">
       <div class="grid grid-cols-3 gap-4 max-[900px]:grid-cols-1">
-        @for (metric of vm().metrics; track metric.label) {
+        @for (metric of vm.metrics; track metric.label) {
           <st5-metric-card-block [metric]="metric" />
         }
       </div>
 
       <div class="grid grid-cols-2 gap-4 max-[900px]:grid-cols-1">
-        @for (card of vm().cards; track card.href) {
+        @for (card of vm.cards; track card.href) {
           <article
             class="flex min-h-52 flex-col justify-between gap-5 rounded-lg border border-sv5-line bg-sv5-panel p-4 shadow-sv5 max-[900px]:col-auto"
             [class.col-span-2]="card.wide"
@@ -39,5 +39,6 @@ import type { DashboardViewModel } from './dashboard.vm';
   `,
 })
 export class St5DashboardPage {
-  readonly vm = input.required<DashboardViewModel>();
+  @Input()
+  vm!: DashboardViewModel;
 }

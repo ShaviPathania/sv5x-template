@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 export type AppShellNavItem = {
@@ -29,22 +29,22 @@ export type AppShellViewModel = {
       >
         <a
           class="flex items-center gap-3 rounded-lg p-2"
-          [routerLink]="vm().brand.homePath"
-          [attr.aria-label]="vm().brand.name + ' dashboard'"
+          [routerLink]="vm.brand.homePath"
+          [attr.aria-label]="vm.brand.name + ' dashboard'"
         >
           <span
             class="grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br from-sv5-teal to-sv5-blue font-black text-[#071018]"
           >
-            {{ vm().brand.mark }}
+            {{ vm.brand.mark }}
           </span>
           <span>
-            <strong class="block">{{ vm().brand.name }}</strong>
-            <small class="mt-0.5 block text-xs text-slate-400">{{ vm().brand.description }}</small>
+            <strong class="block">{{ vm.brand.name }}</strong>
+            <small class="mt-0.5 block text-xs text-slate-400">{{ vm.brand.description }}</small>
           </span>
         </a>
 
         <nav class="grid gap-1 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1" aria-label="Primary">
-          @for (item of vm().navItems; track item.path) {
+          @for (item of vm.navItems; track item.path) {
             <a
               class="min-h-11 rounded-lg px-3 py-3 font-bold text-slate-300 hover:bg-slate-400/10 hover:text-white focus-visible:bg-slate-400/10 focus-visible:text-white"
               routerLinkActive="bg-sv5-blue/20 text-slate-50 shadow-[inset_3px_0_0_var(--sv5-blue)]"
@@ -62,15 +62,15 @@ export type AppShellViewModel = {
         >
           <div>
             <p class="mb-1 text-xs font-extrabold uppercase tracking-[0.08em] text-sv5-muted">
-              {{ vm().eyebrow }}
+              {{ vm.eyebrow }}
             </p>
-            <h1 class="m-0 text-[1.4rem] font-bold tracking-normal">{{ vm().title }}</h1>
+            <h1 class="m-0 text-[1.4rem] font-bold tracking-normal">{{ vm.title }}</h1>
           </div>
 
-          @if (vm().viaUrl) {
+          @if (vm.viaUrl) {
             <a
               class="inline-flex min-h-10 items-center rounded-full border border-sv5-line bg-sv5-panel px-4 font-extrabold text-sv5-blue"
-              [href]="vm().viaUrl"
+              [href]="vm.viaUrl"
               target="_blank"
               rel="noreferrer"
             >
@@ -87,5 +87,6 @@ export type AppShellViewModel = {
   `,
 })
 export class St5AppShellLayout {
-  readonly vm = input.required<AppShellViewModel>();
+  @Input()
+  vm!: AppShellViewModel;
 }

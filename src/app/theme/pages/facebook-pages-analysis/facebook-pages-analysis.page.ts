@@ -1,17 +1,21 @@
-import { Component, inject, input, output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, Input } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { St5ButtonBlock } from '../../blocks/button/button.block';
 import { St5FieldBlock } from '../../blocks/field/field.block';
 import { St5AnalysisFormPattern } from '../../patterns/analysis-form/analysis-form.pattern';
 import { St5AnalysisResultPattern } from '../../patterns/analysis-result/analysis-result.pattern';
-import type {
-  FacebookPagesAnalysisFormValue,
-  FacebookPagesAnalysisRunRequest,
-  FacebookPagesAnalysisViewModel,
-} from './facebook-pages-analysis.vm';
+import type { AnalysisResultViewModel } from '../../patterns/analysis-result/analysis-result.vm';
+import type { FacebookPagesAnalysisPageIO } from './facebook-pages-analysis.io';
+import { mockFacebookPagesAnalysisPageIO } from './facebook-pages-analysis.io';
+import type { FacebookPagesAnalysisFormValue } from './facebook-pages-analysis.vm';
 import { sampleFacebookPagesAnalysisFormValue } from './facebook-pages-analysis.vm';
 
 type FacebookPagesAnalysisField = keyof FacebookPagesAnalysisFormValue;
+type FacebookPagesAnalysisForm = FormGroup<{
+  pageId: FormControl<string>;
+  topic: FormControl<FacebookPagesAnalysisFormValue['topic']>;
+  lookbackDays: FormControl<number>;
+}>;
 
 @Component({
   selector: 'st5-facebook-pages-analysis-page',
@@ -64,53 +68,94 @@ type FacebookPagesAnalysisField = keyof FacebookPagesAnalysisFormValue;
           <st5-button-block
             buttonType="submit"
             tone="blue"
-            [disabled]="vm().state === 'running'"
-            [text]="vm().state === 'running' ? 'Running...' : 'Run page analysis'"
+            [disabled]="state === 'running'"
+            [text]="state === 'running' ? 'Running...' : 'Run page analysis'"
           />
         </st5-analysis-form-pattern>
       </form>
 
-      <st5-analysis-result-pattern [vm]="resultVm()" />
+      <st5-analysis-result-pattern [vm]="resultVm" />
     </section>
   `,
 })
 export class St5FacebookPagesAnalysisPage {
-  private readonly formBuilder = inject(FormBuilder);
+  @Input()
+  io: FacebookPagesAnalysisPageIO = mockFacebookPagesAnalysisPageIO;
 
-  readonly vm = input.required<FacebookPagesAnalysisViewModel>();
-  readonly runRequested = output<FacebookPagesAnalysisRunRequest>();
+  protected state: AnalysisResultViewModel['state'] = 'idle';
+  protected result: AnalysisResultViewModel['result'] = null;
+  protected rawOutput = 'Run the form to call /api/facebook-pages-analysis.';
+  protected submitAttempted = false;
+  protected readonly form: FacebookPagesAnalysisForm;
 
-  protected readonly submitAttempted = signal(false);
-  protected readonly form = this.formBuilder.nonNullable.group({
-    pageId: [sampleFacebookPagesAnalysisFormValue.pageId, [Validators.required, Validators.minLength(3)]],
-    topic: [sampleFacebookPagesAnalysisFormValue.topic, [Validators.required]],
-    lookbackDays: [
-      sampleFacebookPagesAnalysisFormValue.lookbackDays,
-      [Validators.required, Validators.min(1), Validators.max(90)],
-    ],
-  });
+  constructor(private formBuilder: FormBuilder) {
+    this.form = this.formBuilder.nonNullable.group({
+      pageId: [sampleFacebookPagesAnalysisFormValue.pageId, [Validators.required, Validators.minLength(3)]],
+      topic: [sampleFacebookPagesAnalysisFormValue.topic, [Validators.required]],
+      lookbackDays: [
+        sampleFacebookPagesAnalysisFormValue.lookbackDays,
+        [Validators.required, Validators.min(1), Validators.max(90)],
+      ],
+    });
+  }
 
-  protected resultVm() {
+  protected get resultVm(): AnalysisResultViewModel {
     return {
-      ...this.vm(),
-      accent: 'blue' as const,
+    state: this.state,
+    title: this.statusTitle(),
+    text: this.statusText(),
+    result: this.result,
+    rawOutput: this.rawOutput,
+    accent: 'blue' as const,
     };
   }
 
   protected errorFor(field: FacebookPagesAnalysisField): string | null {
     const control = this.form.controls[field];
-    if (!control.invalid || (!control.touched && !this.submitAttempted())) return null;
+    if (!control.invalid || (!control.touched && !this.submitAttempted)) return null;
     if (control.hasError('required')) return 'This field is required.';
     if (control.hasError('minlength')) return 'Use at least 3 characters.';
     if (control.hasError('min') || control.hasError('max')) return 'Choose between 1 and 90 days.';
     return 'Review this field.';
   }
 
-  protected runAnalysis(): void {
-    this.submitAttempted.set(true);
+  protected async runAnalysis(): Promise<void> {
+    this.submitAttempted = true;
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
 
-    this.runRequested.emit(this.form.getRawValue());
+    const request = this.form.getRawValue();
+    this.state = 'running';
+    this.result = null;
+    this.rawOutput = 'Running...';
+
+    try {
+      const result = await this.io.onRunAnalysis(request);
+      this.result = result;
+      this.rawOutput = JSON.stringify(result, null, 2);
+      this.state = 'success';
+    } catch (error) {
+      this.result = null;
+      this.rawOutput = this.readError(error);
+      this.state = 'error';
+    }
+  }
+
+  private statusTitle(): string {
+    if (this.state === 'success') return 'Analysis complete';
+    if (this.state === 'error') return 'Analysis failed';
+    if (this.state === 'running') return 'Running analysis';
+    return 'Ready';
+  }
+
+  private statusText(): string {
+    if (this.state === 'success') return this.result?.summary ?? 'Mock analysis returned a result.';
+    if (this.state === 'error') return 'Confirm the VIA service is running and reachable.';
+    if (this.state === 'running') return 'Submitting the request to the configured analysis IO.';
+    return 'The response panel will show metrics, recommendations, and raw JSON.';
+  }
+
+  private readError(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
   }
 }

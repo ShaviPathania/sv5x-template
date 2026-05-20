@@ -17,6 +17,12 @@ src/app/theme/
 
 `sv5` imports template pages from `sv5x-template` and wires them to VIA HTTP clients and app state.
 
+## Tailwind
+
+`tailwind.config.js` is the source of truth for the sample SaaS app template theme. Keep route layouts, pages, patterns, and blocks on these template tokens so frontend-only work can be developed and reviewed in this repo.
+
+The consuming `sv5` app imports this config as a Tailwind preset and adds its own app/common content globs. Keep existing `st5-*` Angular selectors and current `sv5` Tailwind token names stable unless the consuming app is updated in the same change.
+
 ## Local Preview
 
 ```bash

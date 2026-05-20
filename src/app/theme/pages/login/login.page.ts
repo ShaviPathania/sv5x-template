@@ -1,12 +1,16 @@
-import { Component, inject, input, output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import type { ContactSubmitter } from '@sv5x/common';
+import { Component, Input } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { St5ButtonBlock } from '../../blocks/button/button.block';
 import { St5FieldBlock } from '../../blocks/field/field.block';
 import { St5ContactPanelPattern } from '../../patterns/contact-panel/contact-panel.pattern';
-import type { LoginRequest, LoginViewModel } from './login.vm';
+import type { LoginPageIO, LoginRequest } from './login.io';
+import { mockLoginPageIO } from './login.io';
 
 type LoginField = keyof LoginRequest;
+type LoginForm = FormGroup<{
+  email: FormControl<string>;
+  password: FormControl<string>;
+}>;
 
 @Component({
   selector: 'st5-login-page',
@@ -43,45 +47,67 @@ type LoginField = keyof LoginRequest;
             >
           </st5-field-block>
 
-          <st5-button-block buttonType="submit" tone="blue" text="Sign in locally" />
+          <st5-button-block
+            buttonType="submit"
+            tone="blue"
+            [disabled]="isLoading"
+            [text]="isLoading ? 'Signing in...' : 'Sign in locally'"
+          />
 
           <p class="rounded-lg bg-sv5-panel-muted p-3 leading-6 text-sv5-muted">
-            {{ vm().status }}
+            {{ status }}
           </p>
         </form>
       </article>
 
-      <st5-contact-panel-pattern [submitContact]="submitContact()" />
+      <st5-contact-panel-pattern [io]="io.contact" />
     </section>
   `,
 })
 export class St5LoginPage {
-  private readonly formBuilder = inject(FormBuilder);
+  @Input()
+  io: LoginPageIO = mockLoginPageIO;
 
-  readonly vm = input.required<LoginViewModel>();
-  readonly submitContact = input.required<ContactSubmitter>();
-  readonly loginRequested = output<LoginRequest>();
+  protected isLoading = false;
+  protected status = 'This template accepts any valid-looking email and password.';
+  protected submitAttempted = false;
+  protected readonly form: LoginForm;
 
-  protected readonly submitAttempted = signal(false);
-  protected readonly form = this.formBuilder.nonNullable.group({
-    email: ['operator@example.com', [Validators.required, Validators.email]],
-    password: ['sample-password', [Validators.required, Validators.minLength(8)]],
-  });
+  constructor(private formBuilder: FormBuilder) {
+    this.form = this.formBuilder.nonNullable.group({
+      email: ['operator@example.com', [Validators.required, Validators.email]],
+      password: ['sample-password', [Validators.required, Validators.minLength(8)]],
+    });
+  }
 
   protected errorFor(field: LoginField): string | null {
     const control = this.form.controls[field];
-    if (!control.invalid || (!control.touched && !this.submitAttempted())) return null;
+    if (!control.invalid || (!control.touched && !this.submitAttempted)) return null;
     if (control.hasError('required')) return `Enter your ${field}.`;
     if (field === 'email' && control.hasError('email')) return 'Enter a valid email address.';
     if (control.hasError('minlength')) return 'Password must be at least 8 characters.';
     return 'Review this field.';
   }
 
-  protected submitLogin(): void {
-    this.submitAttempted.set(true);
+  protected async submitLogin(): Promise<void> {
+    this.submitAttempted = true;
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
 
-    this.loginRequested.emit(this.form.getRawValue());
+    this.isLoading = true;
+    this.status = 'Signing in...';
+
+    try {
+      const result = await this.io.onLogin(this.form.getRawValue());
+      this.status = result.message;
+    } catch (error) {
+      this.status = this.readError(error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private readError(error: unknown): string {
+    return error instanceof Error ? error.message : 'Login failed. Please try again.';
   }
 }

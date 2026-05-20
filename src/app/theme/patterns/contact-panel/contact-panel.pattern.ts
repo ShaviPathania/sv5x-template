@@ -1,5 +1,5 @@
-import { Component, input } from '@angular/core';
-import { SharedContactFormComponent, type ContactSubmitter } from '@sv5x/common';
+import { Component, Input } from '@angular/core';
+import { SharedContactFormComponent, type ContactFormIO, mockContactFormIO } from '@sv5x/common';
 
 @Component({
   selector: 'st5-contact-panel-pattern',
@@ -12,7 +12,7 @@ import { SharedContactFormComponent, type ContactSubmitter } from '@sv5x/common'
         heading="Contact from login"
         description="This second form is the shared contact form used by the website and app. The consuming app still owns the VIA submitter."
         submitLabel="Send to sw5"
-        [submitContact]="submitContact()"
+        [io]="io"
       />
     </section>
   `,
@@ -38,5 +38,6 @@ import { SharedContactFormComponent, type ContactSubmitter } from '@sv5x/common'
   ],
 })
 export class St5ContactPanelPattern {
-  readonly submitContact = input.required<ContactSubmitter>();
+  @Input()
+  io: ContactFormIO = mockContactFormIO;
 }

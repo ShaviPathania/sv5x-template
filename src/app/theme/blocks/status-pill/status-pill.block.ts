@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 export type StatusPillTone = 'success' | 'warning' | 'danger' | 'neutral';
 
@@ -7,18 +7,21 @@ export type StatusPillTone = 'success' | 'warning' | 'danger' | 'neutral';
   template: `
     <span
       class="inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-[0.08em]"
-      [class.bg-sv5-green]="tone() === 'success'"
-      [class.bg-sv5-amber]="tone() === 'warning'"
-      [class.bg-sv5-red]="tone() === 'danger'"
-      [class.bg-sv5-soft]="tone() === 'neutral'"
-      [class.text-slate-950]="tone() === 'success' || tone() === 'warning'"
-      [class.text-white]="tone() === 'danger' || tone() === 'neutral'"
+      [class.bg-sv5-green]="tone === 'success'"
+      [class.bg-sv5-amber]="tone === 'warning'"
+      [class.bg-sv5-red]="tone === 'danger'"
+      [class.bg-sv5-soft]="tone === 'neutral'"
+      [class.text-slate-950]="tone === 'success' || tone === 'warning'"
+      [class.text-white]="tone === 'danger' || tone === 'neutral'"
     >
-      {{ label() }}
+      {{ label }}
     </span>
   `,
 })
 export class St5StatusPillBlock {
-  readonly label = input.required<string>();
-  readonly tone = input<StatusPillTone>('neutral');
+  @Input()
+  label!: string;
+
+  @Input()
+  tone: StatusPillTone = 'neutral';
 }
