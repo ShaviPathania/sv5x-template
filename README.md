@@ -2,6 +2,10 @@
 
 Sample SaaS app template for `sv5`.
 
+This repo is a concrete implementation example for frontend/template separation around VIA apps, not VIA core. It shows how end-developers can keep Angular presentation work, route templates, view models, local UI state, and mock preview IO separate from the consuming app's VIA clients and product logic. The standalone sample repo is [vaizle/sv5x-template](https://github.com/vaizle/sv5x-template).
+
+Workspace role: extension repo under `projects/sv5x/`, consumed by the top-level `sv5` app repo.
+
 `sv5x-template` owns Angular-only template work: layouts, pages, patterns, blocks, local form behavior, visual states, and typed view-model/event contracts. It does not own VIA flows, backend routes, API clients, deploy wrappers, or product persistence contracts.
 
 ## Structure
