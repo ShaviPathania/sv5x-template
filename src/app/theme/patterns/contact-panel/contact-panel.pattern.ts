@@ -7,11 +7,6 @@ import { SharedContactFormComponent, type ContactFormIO, mockContactFormIO } fro
   template: `
     <section class="contact-panel-vars rounded-lg border border-sv5-line bg-sv5-panel p-4 shadow-sv5">
       <sv5x-contact-form
-        formId="sv5-login-contact"
-        eyebrow="Shared component"
-        heading="Contact from login"
-        description="This second form is the shared contact form used by the website and app. The consuming app still owns the VIA submitter."
-        submitLabel="Send to sw5"
         [io]="io"
       />
     </section>

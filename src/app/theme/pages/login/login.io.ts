@@ -17,7 +17,14 @@ export type LoginPageIO = {
 };
 
 export const mockLoginPageIO: LoginPageIO = {
-  contact: mockContactFormIO,
+  contact: {
+    ...mockContactFormIO,
+    formId: 'sv5-login-contact',
+    eyebrow: 'Shared component',
+    heading: 'Contact from login',
+    description: 'This second form is the shared contact form used by the website and app. The consuming app still owns the VIA submitter.',
+    submitLabel: 'Send to sw5',
+  },
   onLogin: async (request) => ({
     success: true,
     message: `Template preview session ready for ${request.email}.`,
