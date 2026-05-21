@@ -54,6 +54,13 @@ type LoginForm = FormGroup<{
             [text]="isLoading ? 'Signing in...' : 'Sign in locally'"
           />
 
+          <a
+            class="inline-flex min-h-11 w-fit items-center justify-center rounded-full bg-sv5-soft px-4 font-extrabold text-white transition hover:bg-slate-600/70 focus-visible:bg-slate-600/70"
+            [href]="io.websiteHome.href"
+          >
+            {{ io.websiteHome.label }}
+          </a>
+
           <p class="rounded-lg bg-sv5-panel-muted p-3 leading-6 text-sv5-muted">
             {{ status }}
           </p>

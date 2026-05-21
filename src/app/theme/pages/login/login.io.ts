@@ -11,12 +11,22 @@ export type LoginResult = {
   message: string;
 };
 
+export type LoginHomeLink = {
+  label: string;
+  href: string;
+};
+
 export type LoginPageIO = {
   onLogin: (request: LoginRequest) => Promise<LoginResult>;
+  websiteHome: LoginHomeLink;
   contact: ContactFormIO;
 };
 
 export const mockLoginPageIO: LoginPageIO = {
+  websiteHome: {
+    label: 'Go to website home',
+    href: '/',
+  },
   contact: {
     ...mockContactFormIO,
     formId: 'sv5-login-contact',
