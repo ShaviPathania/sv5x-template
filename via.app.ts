@@ -1,6 +1,6 @@
-import { defineViaApp } from '@vaizle/via/core/app';
+import { defineApp } from "@vaizle/via/core";
 
-export const viaApp = defineViaApp({
+export const viaApp = defineApp({
   serviceId: 'sv5x-template',
   moduleUrl: import.meta.url,
   frontend: {
