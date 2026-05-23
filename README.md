@@ -19,6 +19,8 @@ src/app/theme/
 
 `sv5` imports template pages and supplies real app state, VIA clients, and event handlers.
 
+Template pages own presentation, loading/error states, typed UI events, and mock preview IO only. Consuming apps own VIA clients, flows, context/history selection, persistence, and agent harnesses. Do not put hidden VIA runtime behavior, backend env, or product DB contracts in this template repo.
+
 ## Tailwind
 
 `tailwind.config.js` owns the sample SaaS app template theme. `sv5` imports it as a preset and adds app/common content globs. Keep existing `st5-*` Angular selectors and current `sv5` Tailwind token names stable unless the consuming app is updated in the same change.
