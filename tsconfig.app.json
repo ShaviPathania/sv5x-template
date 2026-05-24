@@ -4,7 +4,7 @@
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "rootDir": "../../../",
-    "outDir": "../../../out-tsc/app",
+    "outDir": "../../../dist/out-tsc/app",
     "noEmitOnError": true,
     "types": [
       "node"

@@ -4,7 +4,7 @@ Sample Angular presentation/template repo for `sv5`. This is a concrete frontend
 
 Workspace role: extension repo under `projects/sv5x/`, consumed by top-level app repo `sv5`.
 
-`sv5x-template` owns Angular-only layouts, pages, patterns, blocks, local form behavior, visual/loading/error states, typed view-model/event contracts, and mock preview IO. It does not own VIA flows, backend routes, API clients, deploy wrappers, auth, frontend env, or product persistence.
+`sv5x-template` owns Angular-only layouts, pages, patterns, blocks, local form behavior, visual/loading/error states, typed view-model/event contracts, and mock preview IO. It does not own VIA flows, backend routes, API clients, deploy profiles, auth, frontend env, or product persistence.
 
 ## Structure
 
@@ -29,7 +29,7 @@ Template pages own presentation, loading/error states, typed UI events, and mock
 
 ```bash
 cd /emux/emu5
-bun run via sv5x-template
+bun run via dev sv5x-template --profile local
 ```
 
 You can also run `bunx ng serve sv5x-template`. The preview app uses local mock handlers only; run `sv5` to test real VIA-backed behavior.
